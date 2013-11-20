@@ -89,7 +89,7 @@ abstract class CircuitSimulator extends Simulator {
   }
 
   def demux(in: Wire, c: List[Wire], out: List[Wire]){
-	  val n = out.length
+	  val n = out length
   
 	  if(n==1) {
 	    directlink(in, out.head)
@@ -103,8 +103,8 @@ abstract class CircuitSimulator extends Simulator {
 		val chr = new Wire
 		
 		inverter(ch, chr)
-		andGate(in,ch,inleft)
-		andGate(in, chr, inright)
+		andGate(in,chr,inleft)
+		andGate(in, ch, inright)
 		
 		demux(inleft,c.tail,left)
 		demux(inright,c.tail,right)

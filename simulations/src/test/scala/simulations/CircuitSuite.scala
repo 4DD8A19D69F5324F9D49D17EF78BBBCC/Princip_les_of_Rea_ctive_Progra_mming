@@ -93,17 +93,17 @@ class CircuitSuite extends CircuitSimulator with FunSuite {
     
     def getresult = for(x<-olist) yield x.getSignal
     
-    assert(getresult === List(true,false,false,false), "demux 1")
+    assert(getresult === List(false,false,false,true), "demux 1")
     c0.setSignal(true)
     run
-    assert(getresult === List(false,true,false,false), "demux 2")
+    assert(getresult === List(false,false,true,false), "demux 2")
     c0.setSignal(false)
     c1.setSignal(true)
     run
-    assert(getresult === List(false,false,true,false), "demux 3")
+    assert(getresult === List(false,true,false,false), "demux 3")
     c0.setSignal(true)
     run
-    assert(getresult === List(false,false,false,true), "demux 4")
+    assert(getresult === List(true,false,false,false), "demux 4")
     
     
     in.setSignal(false)
