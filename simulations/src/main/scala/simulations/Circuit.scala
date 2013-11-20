@@ -35,7 +35,14 @@ abstract class CircuitSimulator extends Simulator {
       }
     }
   }
-
+  
+  def directlink(input: Wire, output: Wire){
+	  input addAction {
+	    () => output.setSignal(input.getSignal)
+	  }
+  }
+  
+  
   def inverter(input: Wire, output: Wire) {
     def invertAction() {
       val inputSig = input.getSignal
@@ -43,7 +50,8 @@ abstract class CircuitSimulator extends Simulator {
     }
     input addAction invertAction
   }
-
+  
+  
   def andGate(a1: Wire, a2: Wire, output: Wire) {
     def andAction() {
       val a1Sig = a1.getSignal
@@ -54,20 +62,53 @@ abstract class CircuitSimulator extends Simulator {
     a2 addAction andAction
   }
 
+  
+
   //
   // to complete with orGates and demux...
   //
 
   def orGate(a1: Wire, a2: Wire, output: Wire) {
-    ???
+    def orAction() {
+      val a1sig = a1.getSignal
+      val a2sig = a2.getSignal
+      afterDelay(OrGateDelay) {
+        output.setSignal(a1sig | a2sig)
+      }
+    }
+    a1 addAction orAction
+    a2 addAction orAction
   }
   
   def orGate2(a1: Wire, a2: Wire, output: Wire) {
-    ???
+    val a1r, a2r,outputr= new Wire
+    inverter(a1, a1r)
+    inverter(a2, a2r)
+    andGate(a1r, a2r, outputr)
+    inverter(outputr, output)
   }
 
-  def demux(in: Wire, c: List[Wire], out: List[Wire]) {
-    ???
+  def demux(in: Wire, c: List[Wire], out: List[Wire]){
+	  val n = out.length
+  
+	  if(n==1) {
+	    directlink(in, out.head)
+	  }else{
+		val left = out take n/2
+		val right = out takeRight n/2	
+		
+		val inleft, inright = new Wire
+		
+		val ch = c.head
+		val chr = new Wire
+		
+		inverter(ch, chr)
+		andGate(in,chr,inleft)
+		andGate(in, ch, inright)
+		
+		demux(inleft,c.tail,left)
+		demux(inright,c.tail,right)
+	  }
   }
 
 }
@@ -93,7 +134,27 @@ object Circuit extends CircuitSimulator {
     in2.setSignal(true)
     run
   }
-
+  
+  
+  def demuxExample {
+    
+    val in=new Wire
+    val c1,c0 = new Wire
+    val o3,o2,o1,o0 = new Wire
+    val clist = List(c1,c0)
+    val olist = List(o3,o2,o1,o0)
+    
+   
+    in.setSignal(true)
+    c1.setSignal(true)
+    c0.setSignal(false)
+    demux(in,clist,olist);
+    run 
+    
+    for(x<-olist) println(x.getSignal)
+    
+    
+  }
   //
   // to complete with orGateExample and demuxExample...
   //
@@ -101,5 +162,6 @@ object Circuit extends CircuitSimulator {
 
 object CircuitMain extends App {
   // You can write tests either here, or better in the test class CircuitSuite.
-  Circuit.andGateExample
+  //Circuit.andGateExample
+  Circuit.demuxExample
 }
