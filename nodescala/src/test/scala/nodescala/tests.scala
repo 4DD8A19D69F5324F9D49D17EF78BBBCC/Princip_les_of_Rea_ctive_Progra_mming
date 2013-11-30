@@ -34,6 +34,13 @@ class NodeScalaSuite extends FunSuite {
     }
   }
 
+  test("A Future should not complete after 1s when using a delay of 3s") {
+    intercept[TimeoutException] { 
+       val future = Future.delay(3 seconds)
+       Await.result(future, 1 second)
+    }
+  }
+  
   test("CancellationTokenSource should allow stopping the computation") {
     val cts = CancellationTokenSource()
     val ct = cts.cancellationToken
