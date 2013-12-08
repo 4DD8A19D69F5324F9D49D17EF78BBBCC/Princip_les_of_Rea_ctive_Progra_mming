@@ -10,9 +10,9 @@ import scala.util.{Try, Success, Failure}
 import rx.lang.scala._
 import org.scalatest._
 import gui._
-
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import scala.collection.mutable.ListBuffer
 
 
 @RunWith(classOf[JUnitRunner])
@@ -51,6 +51,22 @@ class WikipediaApiTest extends FunSuite {
     assert(completed && count == 3, "completed: " + completed + ", event count: " + count)
   }
 
+  
+  
+  
+  test("wrap the stream value in a Try using recovered") {
+    val stream = Observable(1,2,3) ++ Observable(new Exception("meow!"))
+    val recovered = stream.recovered
+    var x : ListBuffer[Try[Int]] = ListBuffer()
+    var count = 0
+    var completed = false
+    recovered.subscribe(t => {x+=t; count+=1}, t=> assert(false,s"stream error $t"), () => completed = true)
+    assert(count==4)     
+  }
+	  
+
+  
+  
   test("WikipediaApi should correctly use concatRecovered") {
     val requests = Observable(1, 2, 3)
     val remoteComputation = (n: Int) => Observable(0 to n)
